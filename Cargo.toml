@@ -1,0 +1,45 @@
+[package]
+name = "zap-wasm"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81.0"
+description = "ZAP Protocol WebAssembly bindings for browser/Node.js"
+license = "MIT"
+repository = "https://github.com/zap-proto/zap-wasm"
+keywords = ["zap", "wasm", "webassembly", "mcp", "binary-protocol"]
+categories = ["wasm", "encoding", "parser-implementations"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+# Enable this feature for better error messages in debug builds
+console_error_panic_hook = ["dep:console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = "0.2.100"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+    "console",
+    "WebSocket",
+    "BinaryType",
+    "MessageEvent",
+    "ErrorEvent",
+    "CloseEvent",
+    "Blob",
+] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+console_error_panic_hook = { version = "0.1", optional = true }
+futures = "0.3"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+# Optimize for size in release builds
+opt-level = "s"
+lto = true

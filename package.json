@@ -1,0 +1,57 @@
+{
+  "name": "@hanzo/zap-wasm",
+  "version": "0.1.0",
+  "description": "ZAP Protocol WebAssembly bindings for browser and Node.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zap-proto/zap-wasm.git"
+  },
+  "homepage": "https://github.com/zap-proto/zap-wasm",
+  "keywords": [
+    "zap",
+    "mcp",
+    "webassembly",
+    "wasm",
+    "browser-extension",
+    "rpc",
+    "binary-protocol"
+  ],
+  "files": [
+    "pkg/*"
+  ],
+  "main": "pkg/zap_wasm.js",
+  "module": "pkg/zap_wasm.js",
+  "types": "pkg/zap_wasm.d.ts",
+  "sideEffects": [
+    "./pkg/zap_wasm.js"
+  ],
+  "exports": {
+    ".": {
+      "import": "./pkg/zap_wasm.js",
+      "require": "./pkg/zap_wasm.js",
+      "types": "./pkg/zap_wasm.d.ts"
+    },
+    "./bundler": {
+      "import": "./pkg/bundler/zap_wasm.js",
+      "types": "./pkg/bundler/zap_wasm.d.ts"
+    },
+    "./nodejs": {
+      "import": "./pkg/nodejs/zap_wasm.js",
+      "require": "./pkg/nodejs/zap_wasm.js",
+      "types": "./pkg/nodejs/zap_wasm.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "make build",
+    "build:web": "wasm-pack build --target web --out-dir pkg",
+    "build:bundler": "wasm-pack build --target bundler --out-dir pkg/bundler",
+    "build:nodejs": "wasm-pack build --target nodejs --out-dir pkg/nodejs",
+    "build:all": "npm run build:web && npm run build:bundler && npm run build:nodejs",
+    "test": "wasm-pack test --headless --firefox",
+    "clean": "rm -rf pkg target"
+  },
+  "devDependencies": {
+    "wasm-pack": "^0.12.1"
+  }
+}

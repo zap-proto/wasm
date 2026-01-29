@@ -1,0 +1,19 @@
+# Build artifacts
+/target/
+/pkg/
+
+# Dependencies
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cargo lock for libraries (optional)
+# Cargo.lock
