@@ -2,12 +2,12 @@
 //!
 //! This crate provides WebAssembly bindings for the ZAP protocol,
 //! enabling browser extensions and web applications to communicate
-//! directly with MCP servers using Cap'n Proto serialization.
+//! directly with MCP servers using ZAP's zero-copy serialization.
 //!
 //! # Example
 //!
 //! ```javascript
-//! import init, { ZapClient, Protocol, generateId } from '@hanzo/zap-wasm';
+//! import init, { ZapClient, Protocol, generateId } from '@zap-proto/wasm';
 //!
 //! await init();
 //!
