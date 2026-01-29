@@ -17,7 +17,7 @@ WebAssembly bindings for the [ZAP Protocol](https://github.com/zap-proto/zap) - 
 ## Installation
 
 ```bash
-npm install @hanzo/zap-wasm
+npm install @zap-proto/wasm
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ npm install @hanzo/zap-wasm
 ### Browser/Bundler
 
 ```typescript
-import init, { ZapClient, Protocol, generateId } from '@hanzo/zap-wasm';
+import init, { ZapClient, Protocol, generateId } from '@zap-proto/wasm';
 
 // Initialize WASM
 await init();
@@ -54,7 +54,7 @@ client.close();
 ### Protocol Encoding/Decoding
 
 ```typescript
-import init, { Protocol, MessageType } from '@hanzo/zap-wasm';
+import init, { Protocol, MessageType } from '@zap-proto/wasm';
 
 await init();
 
@@ -160,7 +160,7 @@ Message Types:
 
 ## Related Packages
 
-- [@hanzo/zap](https://github.com/zap-proto/zap-js) - TypeScript implementation
+- [@zap-proto/zap](https://github.com/zap-proto/zap-js) - TypeScript implementation
 - [zap-rust](https://github.com/zap-proto/zap-rust) - Pure Rust implementation
 
 ## License

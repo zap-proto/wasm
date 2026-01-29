@@ -1,5 +1,5 @@
 {
-  "name": "@hanzo/zap-wasm",
+  "name": "@zap-proto/wasm",
   "version": "0.1.0",
   "description": "ZAP Protocol WebAssembly bindings for browser and Node.js",
   "license": "MIT",
