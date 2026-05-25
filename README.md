@@ -12,7 +12,7 @@ WebAssembly bindings for the [ZAP Protocol](https://github.com/zap-proto/zap) - 
 - **WebSocket Transport**: Direct WebSocket connections to MCP servers
 - **Browser Compatible**: Works in browser extensions and web applications
 - **Type Safe**: Full TypeScript definitions included
-- **Lightweight**: Small WASM bundle (~50KB gzipped)
+- **Lightweight**: Small WASM bundle (~46KB gzipped)
 
 ## Installation
 
@@ -90,12 +90,29 @@ class ZapClient {
   get clientId(): string;
   get isConnected(): boolean;
 
-  // Methods
+  // Connection
   connect(url: string): Promise<void>;
   close(): void;
+
+  // Generic request
   request(method: string, params?: any): Promise<any>;
+
+  // MCP Tools
   listTools(): Promise<Tool[]>;
   callTool(name: string, args?: Record<string, any>): Promise<ToolResult>;
+
+  // MCP Resources
+  listResources(): Promise<Resource[]>;
+  readResource(uri: string): Promise<ResourceContent>;
+
+  // Browser Control
+  browser(params: BrowserParams): Promise<BrowserResult>;
+  navigate(url: string, tabId?: number): Promise<BrowserResult>;
+  click(selector: string, tabId?: number): Promise<BrowserResult>;
+  fill(selector: string, value: string, tabId?: number): Promise<BrowserResult>;
+  evaluate(code: string, tabId?: number): Promise<BrowserResult>;
+  screenshot(fullPage?: boolean, tabId?: number): Promise<BrowserResult>;
+  getTabs(): Promise<BrowserResult>;
 
   // Events
   on(event: string, handler: Function): void;

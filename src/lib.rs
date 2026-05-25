@@ -39,10 +39,11 @@ const ZAP_MAGIC: [u8; 4] = [0x5A, 0x41, 0x50, 0x01]; // "ZAP\x01"
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum ClientType {
-    McpServer = 0,
-    McpClient = 1,
-    BrowserExtension = 2,
-    Agent = 3,
+    Unknown = 0,
+    BrowserExtension = 1,
+    McpServer = 2,
+    McpClient = 3,
+    Agent = 4,
 }
 
 #[wasm_bindgen]
@@ -62,32 +63,34 @@ pub enum MessageType {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum BrowserAction {
+    None = 0,
     Navigate = 1,
-    Back = 2,
-    Forward = 3,
-    Refresh = 4,
+    Reload = 2,
+    Back = 3,
+    Forward = 4,
     Click = 10,
     Type = 11,
     Fill = 12,
     Select = 13,
-    Hover = 14,
-    Scroll = 15,
+    Scroll = 14,
+    Hover = 15,
     Evaluate = 20,
-    WaitFor = 21,
-    GetAttribute = 22,
-    GetText = 23,
+    NewPage = 30,
+    ClosePage = 31,
+    ListPages = 32,
+    GetActivePage = 33,
     Screenshot = 40,
-    Pdf = 41,
     GetTabs = 50,
-    SwitchTab = 51,
-    NewTab = 52,
-    CloseTab = 53,
+    SetActiveTab = 51,
+    CloseTab = 52,
+    NewTab = 53,
     GetCookies = 60,
-    SetCookies = 61,
+    SetCookie = 61,
     ClearCookies = 62,
-    GetStorage = 70,
-    SetStorage = 71,
-    ClearStorage = 72,
+    GetStorage = 63,
+    SetStorage = 64,
+    Status = 70,
+    Ping = 71,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -328,9 +331,12 @@ type PendingCallback = (Function, Function);
 #[wasm_bindgen]
 pub struct ZapClient {
     client_id: String,
+    #[allow(dead_code)]
     client_type: u8,
     capabilities: Vec<String>,
+    #[allow(dead_code)]
     timeout: u32,
+    #[allow(dead_code)]
     binary: bool,
     protocol: Rc<Protocol>,
     ws: Rc<RefCell<Option<WebSocket>>>,
@@ -681,13 +687,127 @@ impl ZapClient {
         self.request("tools/call".into(), params.into())
     }
 
+    /// List available resources
+    #[wasm_bindgen(js_name = listResources)]
+    pub fn list_resources(&self) -> Promise {
+        let request_promise = self.request("resources/list".into(), JsValue::NULL);
+
+        Promise::new(&mut |resolve, reject| {
+            let resolve = Rc::new(resolve);
+            let reject = Rc::new(reject);
+
+            let resolve_clone = resolve.clone();
+            let reject_clone = reject.clone();
+
+            let then = Closure::wrap(Box::new(move |result: JsValue| {
+                let resources = Reflect::get(&result, &"resources".into())
+                    .unwrap_or(Array::new().into());
+                let _ = resolve_clone.call1(&JsValue::NULL, &resources);
+            }) as Box<dyn FnMut(JsValue)>);
+
+            let catch = Closure::wrap(Box::new(move |error: JsValue| {
+                let _ = reject_clone.call1(&JsValue::NULL, &error);
+            }) as Box<dyn FnMut(JsValue)>);
+
+            let _ = request_promise.then2(&then, &catch);
+
+            then.forget();
+            catch.forget();
+        })
+    }
+
+    /// Read a resource by URI
+    #[wasm_bindgen(js_name = readResource)]
+    pub fn read_resource(&self, uri: String) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"uri".into(), &JsValue::from_str(&uri));
+        self.request("resources/read".into(), params.into())
+    }
+
+    /// Execute a browser action
+    #[wasm_bindgen]
+    pub fn browser(&self, params: JsValue) -> Promise {
+        self.request("browser".into(), params)
+    }
+
+    /// Navigate to URL
+    #[wasm_bindgen]
+    pub fn navigate(&self, url: String, tab_id: Option<u32>) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"action".into(), &JsValue::from(BrowserAction::Navigate as u8));
+        let _ = Reflect::set(&params, &"url".into(), &JsValue::from_str(&url));
+        if let Some(id) = tab_id {
+            let _ = Reflect::set(&params, &"tabId".into(), &JsValue::from(id));
+        }
+        self.browser(params.into())
+    }
+
+    /// Click an element by selector
+    #[wasm_bindgen]
+    pub fn click(&self, selector: String, tab_id: Option<u32>) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"action".into(), &JsValue::from(BrowserAction::Click as u8));
+        let _ = Reflect::set(&params, &"selector".into(), &JsValue::from_str(&selector));
+        if let Some(id) = tab_id {
+            let _ = Reflect::set(&params, &"tabId".into(), &JsValue::from(id));
+        }
+        self.browser(params.into())
+    }
+
+    /// Fill an input element
+    #[wasm_bindgen]
+    pub fn fill(&self, selector: String, value: String, tab_id: Option<u32>) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"action".into(), &JsValue::from(BrowserAction::Fill as u8));
+        let _ = Reflect::set(&params, &"selector".into(), &JsValue::from_str(&selector));
+        let _ = Reflect::set(&params, &"value".into(), &JsValue::from_str(&value));
+        if let Some(id) = tab_id {
+            let _ = Reflect::set(&params, &"tabId".into(), &JsValue::from(id));
+        }
+        self.browser(params.into())
+    }
+
+    /// Evaluate JavaScript code
+    #[wasm_bindgen]
+    pub fn evaluate(&self, code: String, tab_id: Option<u32>) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"action".into(), &JsValue::from(BrowserAction::Evaluate as u8));
+        let _ = Reflect::set(&params, &"code".into(), &JsValue::from_str(&code));
+        if let Some(id) = tab_id {
+            let _ = Reflect::set(&params, &"tabId".into(), &JsValue::from(id));
+        }
+        self.browser(params.into())
+    }
+
+    /// Take a screenshot
+    #[wasm_bindgen]
+    pub fn screenshot(&self, full_page: Option<bool>, tab_id: Option<u32>) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"action".into(), &JsValue::from(BrowserAction::Screenshot as u8));
+        if let Some(fp) = full_page {
+            let _ = Reflect::set(&params, &"fullPage".into(), &JsValue::from(fp));
+        }
+        if let Some(id) = tab_id {
+            let _ = Reflect::set(&params, &"tabId".into(), &JsValue::from(id));
+        }
+        self.browser(params.into())
+    }
+
+    /// Get browser tabs
+    #[wasm_bindgen(js_name = getTabs)]
+    pub fn get_tabs(&self) -> Promise {
+        let params = Object::new();
+        let _ = Reflect::set(&params, &"action".into(), &JsValue::from(BrowserAction::GetTabs as u8));
+        self.browser(params.into())
+    }
+
     /// Subscribe to an event
     #[wasm_bindgen]
     pub fn on(&self, event: String, handler: Function) {
         let mut handlers = self.event_handlers.borrow_mut();
         handlers
             .entry(event)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(handler);
     }
 
