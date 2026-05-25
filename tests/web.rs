@@ -1,13 +1,12 @@
 //! WASM tests for zap-wasm
 //!
-//! Run with: wasm-pack test --headless --firefox
+//! Run with: wasm-pack test --node
+//! Or with browser: wasm-pack test --headless --firefox
 
 #![cfg(target_arch = "wasm32")]
 
 use wasm_bindgen_test::*;
 use zap_wasm::*;
-
-wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
 fn test_generate_id() {
@@ -30,7 +29,6 @@ fn test_generate_client_id() {
 #[wasm_bindgen_test]
 fn test_protocol_encode_decode_binary() {
     use js_sys::Object;
-    use wasm_bindgen::JsValue;
 
     let protocol = Protocol::new(Some(true));
 
@@ -39,7 +37,7 @@ fn test_protocol_encode_decode_binary() {
     js_sys::Reflect::set(&obj, &"test".into(), &"value".into()).unwrap();
 
     // Encode
-    let encoded = protocol.encode(MessageType::Request, obj.into()).unwrap();
+    let encoded = protocol.encode(MessageType::Request as u8, obj.into()).unwrap();
 
     // Decode
     let decoded = protocol.decode(encoded).unwrap();
@@ -63,7 +61,7 @@ fn test_protocol_encode_decode_json() {
     js_sys::Reflect::set(&obj, &"hello".into(), &"world".into()).unwrap();
 
     // Encode
-    let encoded = protocol.encode(MessageType::Ping, obj.into()).unwrap();
+    let encoded = protocol.encode(MessageType::Ping as u8, obj.into()).unwrap();
 
     // Should be a string
     assert!(encoded.is_string());
@@ -81,15 +79,18 @@ fn test_protocol_encode_decode_json() {
 
 #[wasm_bindgen_test]
 fn test_client_type_enum() {
-    assert_eq!(ClientType::McpServer as u8, 0);
-    assert_eq!(ClientType::McpClient as u8, 1);
-    assert_eq!(ClientType::BrowserExtension as u8, 2);
-    assert_eq!(ClientType::Agent as u8, 3);
+    assert_eq!(ClientType::Unknown as u8, 0);
+    assert_eq!(ClientType::BrowserExtension as u8, 1);
+    assert_eq!(ClientType::McpServer as u8, 2);
+    assert_eq!(ClientType::McpClient as u8, 3);
+    assert_eq!(ClientType::Agent as u8, 4);
 }
 
 #[wasm_bindgen_test]
 fn test_browser_action_enum() {
+    assert_eq!(BrowserAction::None as u8, 0);
     assert_eq!(BrowserAction::Navigate as u8, 1);
+    assert_eq!(BrowserAction::Reload as u8, 2);
     assert_eq!(BrowserAction::Click as u8, 10);
     assert_eq!(BrowserAction::Evaluate as u8, 20);
     assert_eq!(BrowserAction::Screenshot as u8, 40);
