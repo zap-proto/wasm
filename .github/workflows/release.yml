@@ -1,0 +1,63 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: jetli/wasm-pack-action@v0.4.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Build every target the package.json `exports` map promises (web +
+      # bundler + nodejs). `make build` is web-only and would ship a package
+      # whose ./bundler and ./nodejs entry points 404.
+      - name: build all wasm targets
+        run: npm run build:all
+
+      # wasm-pack drops a `.gitignore` (`*`) into each out-dir and the repo
+      # root ignores /pkg/. npm's `files: ["pkg/*"]` is the allowlist, but the
+      # nested ignores would still empty the tarball — remove them.
+      - name: make pkg publishable
+        run: rm -f pkg/.gitignore pkg/bundler/.gitignore pkg/nodejs/.gitignore
+
+      # Pack first, PROVE the compiled wasm for all three targets is in the
+      # tarball, and only then publish that exact tarball. Fail-closed: a broken
+      # (empty) publish is irreversible, so never reach `npm publish` without
+      # the artifacts verified.
+      - name: pack + verify (fail-closed)
+        id: pack
+        run: |
+          npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
+          tgz=$(npm pack | tail -1)
+          echo "tgz=$tgz" >> "$GITHUB_OUTPUT"
+          echo "── tarball contents ──"; tar tzf "$tgz" | sort
+          for f in package/pkg/zap_wasm_bg.wasm \
+                   package/pkg/nodejs/zap_wasm_bg.wasm \
+                   package/pkg/bundler/zap_wasm_bg.wasm; do
+            tar tzf "$tgz" | grep -qx "$f" || { echo "::error::missing $f in tarball"; exit 1; }
+          done
+
+      # Upload BEFORE publish so a token/registry failure leaves a verified
+      # tarball to hand-publish, never a lost build.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zap-wasm-npm-tarball
+          path: ${{ steps.pack.outputs.tgz }}
+
+      - name: publish @zap-proto/wasm
+        run: npm publish "${{ steps.pack.outputs.tgz }}" --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
