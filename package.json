@@ -1,6 +1,6 @@
 {
   "name": "@zap-proto/wasm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ZAP Protocol WebAssembly bindings for browser and Node.js",
   "license": "MIT",
   "repository": {
@@ -20,26 +20,26 @@
   "files": [
     "pkg/*"
   ],
-  "main": "pkg/zap_wasm.js",
-  "module": "pkg/zap_wasm.js",
-  "types": "pkg/zap_wasm.d.ts",
+  "main": "pkg/wasm.js",
+  "module": "pkg/wasm.js",
+  "types": "pkg/wasm.d.ts",
   "sideEffects": [
-    "./pkg/zap_wasm.js"
+    "./pkg/wasm.js"
   ],
   "exports": {
     ".": {
-      "import": "./pkg/zap_wasm.js",
-      "require": "./pkg/zap_wasm.js",
-      "types": "./pkg/zap_wasm.d.ts"
+      "import": "./pkg/wasm.js",
+      "require": "./pkg/wasm.js",
+      "types": "./pkg/wasm.d.ts"
     },
     "./bundler": {
-      "import": "./pkg/bundler/zap_wasm.js",
-      "types": "./pkg/bundler/zap_wasm.d.ts"
+      "import": "./pkg/bundler/wasm.js",
+      "types": "./pkg/bundler/wasm.d.ts"
     },
     "./nodejs": {
-      "import": "./pkg/nodejs/zap_wasm.js",
-      "require": "./pkg/nodejs/zap_wasm.js",
-      "types": "./pkg/nodejs/zap_wasm.d.ts"
+      "import": "./pkg/nodejs/wasm.js",
+      "require": "./pkg/nodejs/wasm.js",
+      "types": "./pkg/nodejs/wasm.d.ts"
     }
   },
   "scripts": {
