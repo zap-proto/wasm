@@ -44,9 +44,9 @@ jobs:
           tgz=$(npm pack | tail -1)
           echo "tgz=$tgz" >> "$GITHUB_OUTPUT"
           echo "── tarball contents ──"; tar tzf "$tgz" | sort
-          for f in package/pkg/zap_wasm_bg.wasm \
-                   package/pkg/nodejs/zap_wasm_bg.wasm \
-                   package/pkg/bundler/zap_wasm_bg.wasm; do
+          for f in package/pkg/wasm_bg.wasm \
+                   package/pkg/nodejs/wasm_bg.wasm \
+                   package/pkg/bundler/wasm_bg.wasm; do
             tar tzf "$tgz" | grep -qx "$f" || { echo "::error::missing $f in tarball"; exit 1; }
           done
 
@@ -54,7 +54,7 @@ jobs:
       # tarball to hand-publish, never a lost build.
       - uses: actions/upload-artifact@v4
         with:
-          name: zap-wasm-npm-tarball
+          name: wasm-npm-tarball
           path: ${{ steps.pack.outputs.tgz }}
 
       - name: publish @zap-proto/wasm
