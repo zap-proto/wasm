@@ -1,13 +1,13 @@
 {
   "name": "@zap-proto/wasm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ZAP Protocol WebAssembly bindings for browser and Node.js",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zap-proto/zap-wasm.git"
+    "url": "https://github.com/zap-proto/wasm.git"
   },
-  "homepage": "https://github.com/zap-proto/zap-wasm",
+  "homepage": "https://github.com/zap-proto/wasm",
   "keywords": [
     "zap",
     "mcp",

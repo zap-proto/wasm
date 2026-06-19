@@ -5,7 +5,7 @@ edition = "2021"
 rust-version = "1.81.0"
 description = "ZAP Protocol WebAssembly bindings for browser/Node.js"
 license = "MIT"
-repository = "https://github.com/zap-proto/zap-wasm"
+repository = "https://github.com/zap-proto/wasm"
 keywords = ["zap", "wasm", "webassembly", "mcp", "binary-protocol"]
 categories = ["wasm", "encoding", "parser-implementations"]
 
