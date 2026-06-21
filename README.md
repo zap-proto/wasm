@@ -3,7 +3,7 @@
 > **Docs:** [ZAP WebAssembly bindings](https://zap-proto.dev/docs/sdks/typescript) · part of the [ZAP Protocol](https://zap-proto.io)
 
 
-WebAssembly bindings for the [ZAP Protocol](https://github.com/zap-proto/zap) - enabling direct browser extension to MCP server communication.
+WebAssembly bindings for the [ZAP Protocol](https://github.com/zap-proto/go) - enabling direct browser extension to MCP server communication.
 
 ## Overview
 
@@ -180,8 +180,8 @@ Message Types:
 
 ## Related Packages
 
-- [@zap-proto/zap](https://github.com/zap-proto/zap-js) - TypeScript implementation
-- [zap-rust](https://github.com/zap-proto/zap-rust) - Pure Rust implementation
+- [@zap-proto/zap](https://github.com/zap-proto/js) - TypeScript implementation
+- [zap-rust](https://github.com/zap-proto/rust) - Pure Rust implementation
 
 ## License
 
